@@ -1,16 +1,22 @@
-module.exports = function (obj) {
-  var keys = Object.keys(obj);
-  seed = getHashCode(obj);
-  for (j=0; j < keys.length; j++) {
-    console.log(obj[keys[j]]);
-    console.log(typeof obj[keys[j]]);
-    if (typeof obj[keys[j]] === 'boolean') {;
-      obj[keys[j]] = ConvertBoolean(obj[keys[j]]);
-    } else if (typeof obj[keys[j]] === 'number') {;
-      obj[keys[j]] = ConvertNumber(obj[keys[j]]);
-    } else if (typeof obj[keys[j]] === 'string') {;
-      obj[keys[j]] = ConvertString(obj[keys[j]]);
+module.exports = ConvertObject;
+
+function ConvertObject(obj) {
+  if (obj.do_dataobfuscated != true) {
+    seed = getHashCode(obj);
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        if (typeof obj[key] === 'boolean') {
+          obj[key] = ConvertBoolean(obj[key]);
+        } else if (typeof obj[key] === 'number') {
+          obj[key] = ConvertNumber(obj[key]);
+        } else if (typeof obj[key] === 'string') {
+          obj[key] = ConvertString(obj[key]);
+        } else if (typeof obj[key] === 'object') {
+          obj[key] = ConvertObject(obj[key]);
+        }
+      }
     }
+    obj.do_dataobfuscated = true;
   }
   return obj;
 }
@@ -89,7 +95,10 @@ function random() {
 }
 
 function getHashCode(obj) {
-  var objString = JSON.stringify(obj);
+  var newobj = fixCyclic(obj);
+  console.log('newobj');
+  console.log(newobj);
+  var objString = JSON.stringify(newobj);
   var hash = 0, i, chr;
   if (objString.length === 0) return hash;
   for (i = 0; i < objString.length; i++) {
@@ -98,4 +107,24 @@ function getHashCode(obj) {
     hash |= 0; // Convert to 32bit integer
   }
   return hash;
+}
+
+function fixCyclic (obj) {
+  var seenObjects = [];
+  function detect (obj) {
+    if (typeof obj === 'object') {
+      if (seenObjects.indexOf(obj) !== -1) {
+        return '[circular]';
+      }
+      seenObjects.push(obj);
+      for (var key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          obj[key] = detect(obj[key]);
+        }
+      }
+    }
+    return obj;
+  }
+
+  return detect(obj);
 }

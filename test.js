@@ -4,11 +4,11 @@ var assert = require('assert');
 function testBool(input, expected) {
   var obj = {test:input};
   var obfj = obfuscate(obj);
-  console.log(obfj)
   assert.equal(expected, obfj.test);
 }
 
 describe('Test', function() {
+  /*
   describe('#bool()', function() {
     it('true', function() {
       testBool(true, false);
@@ -23,7 +23,6 @@ describe('Test', function() {
     var digits = obj.test.toString().length;
     var obfj = obfuscate(obj);
     var obfdigits = obfj.test.toString().length;
-    console.log(obfj)
     assert.equal(digits, obfdigits);
     assert.notEqual(input, obfj.test);
   }
@@ -48,7 +47,6 @@ describe('Test', function() {
     var digits = obj.test.length;
     var obfj = obfuscate(obj);
     var obfdigits = obfj.test.length;
-    console.log(obfj)
     assert.equal(digits, obfdigits);
     assert.notEqual(input, obfj.test);
   }
@@ -121,7 +119,6 @@ describe('Test', function() {
       var obj = {testBool:true, testNumber: 123456, testString: 'Smith'};
       var obfj = obfuscate(obj);
       var digitstestString = obj.testString.length;
-      console.log(obfj)
       assert.equal(false, obfj.testBool);
       var digitstestNumber = obj.testNumber.toString().length;
       var obfdigitstestNumber = obfj.testNumber.toString().length;
@@ -130,6 +127,24 @@ describe('Test', function() {
       var obfdigitstestString = obfj.testString.length;
       assert.equal(digitstestString, obfdigitstestString);
       assert.notEqual('Smith', obfj.testString);
+    });
+  });
+  */
+  describe('#Objects', function() {
+    it('Object', function() {
+      var obj = {testBool:{testbool:true}};
+      var obfj = obfuscate(obj);
+      assert.equal(false, obfj.testBool.testbool);
+    });
+    it('RecurseObject', function() {
+      var obj = {testBool:{testbool:true}};
+      obj.testBool.testRecurse = obj;
+      console.log('obj');
+      console.log(obj);
+      var obfj = obfuscate(obj);
+      console.log('obfj');
+      console.log(obfj);
+      assert.equal(false, obfj.testBool.testbool);
     });
   });
 });
